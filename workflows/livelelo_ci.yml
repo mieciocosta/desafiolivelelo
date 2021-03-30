@@ -1,0 +1,32 @@
+name: ubuntu
+
+on: [push]
+
+jobs:
+  build:
+    name: build (${{ matrix.ruby }} / ${{ matrix.os }})
+    strategy:
+      matrix:
+        ruby: [ 2.5, 2.4]
+        os: [ ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+    - name: Install dependencies
+      run: |
+        gem install bundler --no-document
+        bundle install
+    - name: Project Checkout
+      uses: actions/checkout@v2
+    - name: Node.js setup
+      uses: actions/setup-node@v2
+    - name: Instalations for dependencies
+      run: npm ci
+    - name: Run Appium
+      run: appium --avd Nexus
+    - name: Run Test
+      run: bundle exec cucumber
